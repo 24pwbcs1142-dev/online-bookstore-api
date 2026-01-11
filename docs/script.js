@@ -1,54 +1,56 @@
 const form = document.getElementById("bookForm");
 const booksList = document.getElementById("booksList");
 
-// Use local API first (or replace with Render URL later)
+// Live Railway backend
 const API_URL = "https://online-bookstore-api-production.up.railway.app/api/books";
 
-fetch(API_URL, {
-  method: "POST", // for adding book
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    title: "Test Book",
-    author: "Test Author",
-    genre: "Test Genre",
-    price: 10.99,
-    publishedDate: "2026-01-11",
-    inStock: true
-  })
-})
-.then(res => res.json())
-.then(data => console.log(data))
-.catch(err => console.error(err));
-// Fetch all books
+// Fetch all books and display
 async function fetchBooks() {
-  const res = await fetch(API_URL);
-  const books = await res.json();
-  booksList.innerHTML = "";
-  books.forEach(book => {
-    const li = document.createElement("li");
-    li.textContent = `${book.title} by ${book.author} - $${book.price}`;
-    booksList.appendChild(li);
-  });
+  try {
+    const res = await fetch(API_URL);
+    const books = await res.json();
+    booksList.innerHTML = "";
+    books.forEach(book => {
+      const li = document.createElement("li");
+      li.textContent = `${book.title} by ${book.author} - $${book.price}`;
+      booksList.appendChild(li);
+    });
+  } catch (err) {
+    console.error("Failed to fetch books:", err);
+  }
 }
 
 // Add new book
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+
   const book = {
-    title: document.getElementById("title").value,
-    author: document.getElementById("author").value,
-    genre: document.getElementById("genre").value,
+    title: document.getElementById("title").value.trim(),
+    author: document.getElementById("author").value.trim(),
+    genre: document.getElementById("genre").value.trim(),
     price: parseFloat(document.getElementById("price").value),
+    publishedDate: document.getElementById("publishedDate").value || new Date().toISOString(),
+    inStock: true
   };
 
-  await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(book)
-  });
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(book)
+    });
 
-  form.reset();
-  fetchBooks();
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.message || "Failed to add book");
+    }
+
+    form.reset();
+    fetchBooks(); // Refresh list
+  } catch (err) {
+    console.error("Error adding book:", err);
+    alert("Failed to add book. Check console for details.");
+  }
 });
 
 // Initial fetch
