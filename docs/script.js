@@ -2,8 +2,11 @@ const form = document.getElementById("bookForm");
 const booksList = document.getElementById("booksList");
 
 // Use local API first (or replace with Render URL later)
-const API_URL = "http://localhost:5000/api/books";
+const API_URL = "https://online-bookstore-api-production.up.railway.app/api/books";
 
+fetch(API_URL)
+  .then(res => res.json())
+  .then(data => console.log(data));
 // Fetch all books
 async function fetchBooks() {
   const res = await fetch(API_URL);
