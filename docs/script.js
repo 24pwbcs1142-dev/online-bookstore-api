@@ -1,10 +1,10 @@
 const form = document.getElementById("bookForm");
 const booksList = document.getElementById("booksList");
 
-// Live Railway backend
+// Live Railway backend URL
 const API_URL = "https://online-bookstore-api-production.up.railway.app/api/books";
 
-// Fetch all books and display
+// Fetch all books
 async function fetchBooks() {
   try {
     const res = await fetch(API_URL);
@@ -40,7 +40,7 @@ form.addEventListener("submit", async (e) => {
       body: JSON.stringify(book)
     });
 
-    if (!res.ok) {
+    if(!res.ok) {
       const errData = await res.json();
       throw new Error(errData.message || "Failed to add book");
     }
